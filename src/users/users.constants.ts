@@ -11,7 +11,6 @@ export enum UserState {
   WAITING_FOR_APPROVE_SAVE = 'waitingForApproveSave',
   WAITING_FOR_APPROVE_DELETE = 'waitingForApproveDelete',
   WAITING_FOR_APPROVE_GET = 'waitingForApproveGet',
-  CONFIRM = 'confirm',
 }
 
 export const messages = {
@@ -27,6 +26,6 @@ export const messages = {
   DELETE: 'Введите код ссылки которую хотите удалить:',
   DELETE_ERR: 'Ошибка при удалении ссылки',
   DELETE_SUCCESSFULLY: 'Ссылка успешно удалена',
-  NOT_A_LINK: 'Ввели невалидный url! Попробуйте еще раз.',
+  NOT_A_LINK: 'Ввели невалидный url! Попробуйте заново.',
   DEFAULT: 'Привет, я умею хранить ссылки.',
 };

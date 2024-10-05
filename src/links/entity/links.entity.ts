@@ -1,4 +1,4 @@
-import { IsUrl, IsUUID } from 'class-validator';
+import { IsUUID, IsUrl } from 'class-validator';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { User } from '../../users/entity/users.entity';
