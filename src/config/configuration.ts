@@ -22,5 +22,4 @@ export default (): any =>
       synchronize: process.env.DB_SYNCHRONIZE,
       namingStrategy: new SnakeNamingStrategy(),
     },
-    API_KEY: process.env.API_KEY,
   }) as const;

@@ -15,10 +15,8 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly bot: BotService,
-    private readonly configService: ConfigService,
-  ) {
-    this.chatId = this.configService.get('CHAT_ID_ALERT');
-  }
+    private readonly configService: ConfigService
+  ) {}
 
   async findOneByChatId(chatId: User['chatId']): Promise<User> {
     this.logger.log(`Trying to user info by chatId: ${chatId}`);
@@ -27,11 +25,9 @@ export class UsersService {
 
     if (!existingUser) {
       this.logger.debug(`user with chatId: ${chatId} not found`);
-      this.bot.sendMessage(this.chatId, `New user with chatId: ${chatId}`);
+    } else {
+      this.logger.debug(`user successfully get by chatId: ${chatId}`);
     }
-
-    this.logger.debug(`user successfully get by chatId: ${chatId}`);
-
     return existingUser;
   }
 
@@ -44,8 +40,10 @@ export class UsersService {
 
     if (user) {
       this.logger.error(`user with chatId ${chatId} already exists`);
-      this.bot.sendMessage(this.chatId, `user with chatId: ${chatId} already exist`);
-      throw new HttpException(`user with chatId: ${chatId} already exist`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `user with chatId: ${chatId} already exist`,
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const { raw } = await this.usersRepository.createUser(createUserDto);
@@ -64,15 +62,19 @@ export class UsersService {
 
     if (!user) {
       this.logger.error(`user with chatId: ${chatId} not exist`);
-      this.bot.sendMessage(this.chatId, `user with chatId: ${chatId} not exist`);
-      throw new HttpException(`user with chatId: ${chatId} not exist`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `user with chatId: ${chatId} not exist`,
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const { affected } = await this.usersRepository.updateUser(chatId, {
       city,
     });
 
-    this.logger.debug(`${affected} user successfully updated by chatId: ${chatId}`);
+    this.logger.debug(
+      `${affected} user successfully updated by chatId: ${chatId}`
+    );
   }
 
   async updateUser(chatId: number, { userState }: UpdateUserDto) {
@@ -82,15 +84,19 @@ export class UsersService {
 
     if (!user) {
       this.logger.error(`user with chatId: ${chatId} not exist`);
-      this.bot.sendMessage(this.chatId, 'user with chatId: ${chatId} not exist');
-      throw new HttpException(`user with chatId: ${chatId} not exist`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `user with chatId: ${chatId} not exist`,
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const { affected } = await this.usersRepository.updateUser(chatId, {
       userState,
     });
 
-    this.logger.debug(`${affected} user successfully updated by chatId: ${chatId}`);
+    this.logger.debug(
+      `${affected} user successfully updated by chatId: ${chatId}`
+    );
   }
 
   async getAllUsers(): Promise<User[]> {
