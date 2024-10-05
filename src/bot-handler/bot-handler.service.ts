@@ -1,6 +1,4 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, LoggerService } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { BotService } from '../bot/bot.service';
 import { CreateLinkDto } from '../links/dto/createLink.dto';
@@ -15,24 +13,20 @@ import delay from '../utils/delay';
 export class BotHandlersService {
   private readonly logger: LoggerService = new Logger(BotHandlersService.name);
   private userActions: TUsersActions;
-  private readonly apiKey: string;
-  private readonly chatId: number;
 
   constructor(
     private readonly botService: BotService,
     private readonly usersService: UsersService,
     private readonly linksService: LinksService,
-    private readonly httpService: HttpService,
-    private configService: ConfigService,
   ) {}
 
   async onModuleInit() {
     this.userActions = {
-      [UserActions.START]: async (text, user) => this.handleStart(text, user), //старт
-      [UserActions.SAVE]: async (text, user) => this.handleSave(text, user), //Сохранение ссылки
-      [UserActions.LIST]: async (text, user) => this.handleList(text, user), //Список сохраненных ссылок
-      [UserActions.GET]: async (text, user) => this.handleGet(text, user), //Получение ссылки
-      [UserActions.DELETE]: async (text, user) => this.handleDelete(text, user), //Удаление ссылки
+      [UserActions.START]: async (text, user) => this.handleStart(text, user),
+      [UserActions.SAVE]: async (text, user) => this.handleSave(text, user),
+      [UserActions.LIST]: async (text, user) => this.handleList(text, user),
+      [UserActions.GET]: async (text, user) => this.handleGet(text, user),
+      [UserActions.DELETE]: async (text, user) => this.handleDelete(text, user),
     };
   }
 
@@ -56,7 +50,7 @@ export class BotHandlersService {
     const actionHandler = this.userActions[text as UserActions];
 
     if (!actionHandler) {
-      return this.handleDefault(text, user.chatId);
+      return this.handleDefault(user.chatId);
     }
 
     return actionHandler(text, user);
@@ -87,7 +81,7 @@ export class BotHandlersService {
     const userLinks = await this.linksService.getLinksByUserId(id);
 
     if (userLinks.length > 0) {
-      const message = userLinks.map((link) => `код: ${link.id}, ссылка: ${link.userUrl}`).join('\n');
+      const message = userLinks.map((link, i) => `${++i}. код: ${link.id}, ссылка: ${link.userUrl}`).join('\n');
 
       await this.botService.sendMessage(chatId, `${messages.LIST}\n${message}`);
     } else {
@@ -99,7 +93,6 @@ export class BotHandlersService {
     this.logger.log('run handleGet');
 
     await this.botService.sendMessage(chatId, messages.GET);
-
     await this.usersService.updateUser(chatId, {
       userState: UserState.WAITING_FOR_APPROVE_GET,
     });
@@ -114,7 +107,7 @@ export class BotHandlersService {
     });
   }
 
-  async handleDefault(text: string, chatId: number): Promise<void> {
+  async handleDefault(chatId: number): Promise<void> {
     this.logger.log('run Default ');
 
     await this.botService.sendMessage(chatId, messages.DEFAULT);
@@ -125,6 +118,12 @@ export class BotHandlersService {
   async waitingForApproveActionSave(text: string, { id, chatId }: User): Promise<void> {
     this.logger.log('run waitingForApproveActionSave');
 
+    const isLink = this.isValidLink(text);
+
+    if (!isLink) {
+      return await this.botService.sendMessage(chatId, messages.NOT_A_LINK);
+    }
+
     const createLinkDto: CreateLinkDto = { userUrl: text, userId: id };
 
     try {
@@ -132,7 +131,6 @@ export class BotHandlersService {
       await this.botService.sendMessage(chatId, messages.SAVE_SUCCESSFULLY);
     } catch (error) {
       this.logger.error(messages.SAVE_ERR, error);
-
       await this.botService.sendMessage(chatId, messages.SAVE_ERR);
     }
 
@@ -144,7 +142,7 @@ export class BotHandlersService {
     this.logger.log('run waitingForApproveActionGet');
 
     try {
-      const link = await this.linksService.getLinkById(Number(text));
+      const link = await this.linksService.getLinkById(text);
       await this.botService.sendMessage(chatId, link.userUrl);
     } catch (error) {
       this.logger.error(messages.GET_ERR, error);
@@ -159,7 +157,7 @@ export class BotHandlersService {
     this.logger.log('run waitingForApproveActionDelete');
 
     try {
-      await this.linksService.deleteLinkById(Number(text));
+      await this.linksService.deleteLinkById(text);
 
       await this.botService.sendMessage(chatId, messages.DELETE_SUCCESSFULLY);
     } catch (error) {
@@ -169,5 +167,10 @@ export class BotHandlersService {
 
     await this.usersService.updateUser(chatId, { userState: UserState.START });
     this.logger.log('waitingForApproveActionDelete successfully ended');
+  }
+
+  private isValidLink(text: string): boolean {
+    const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+    return urlRegex.test(text);
   }
 }

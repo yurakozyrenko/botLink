@@ -16,11 +16,11 @@ export class LinksRepository {
     return await this.linksRepository.createQueryBuilder('links').insert().into(Link).values(createLinkDto).execute();
   }
 
-  async deleteLinkById(id: number): Promise<DeleteResult> {
+  async deleteLinkById(id: string): Promise<DeleteResult> {
     return await this.linksRepository.createQueryBuilder('links').delete().where('id = :id', { id }).execute();
   }
 
-  async getLinkById(id: number): Promise<Link> {
+  async getLinkById(id: string): Promise<Link> {
     return await this.linksRepository
       .createQueryBuilder('links')
       .leftJoinAndSelect('links.user', 'user')

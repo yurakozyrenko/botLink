@@ -21,7 +21,7 @@ export class BotProvider implements OnModuleInit {
     this.botToken = this.configService.get('TELEGRAM_BOT_TOKEN');
     this.bot = new TelegramBot(this.botToken, { polling: false });
     this.bot.setMyCommands([
-      { command: 'start', description: 'Запустить бота' },
+      // { command: 'start', description: 'Запустить бота' },
       { command: 'save', description: 'Сохранение ссылки' },
       { command: 'list', description: 'Список сохраненных ссылок' },
       { command: 'delete', description: 'Удаление ссылки' },

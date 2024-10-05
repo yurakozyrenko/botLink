@@ -51,10 +51,12 @@ export class LinksService {
     return links;
   }
 
-  async getLinkById(id: User['id']): Promise<Link> {
+  async getLinkById(id: Link['id']): Promise<Link> {
     this.logger.log(`Trying to get link by id: ${id}`);
 
     const linkById = await this.linksRepository.getLinkById(id);
+
+    this.logger.debug(`${linkById ? 'link ' : 'No link '}get by Id: ${id}`);
 
     return linkById;
   }

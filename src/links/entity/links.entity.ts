@@ -1,12 +1,13 @@
-import { IsUrl } from 'class-validator';
+import { IsUrl, IsUUID } from 'class-validator';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { User } from '../../users/entity/users.entity';
 
 @Entity({ name: 'links' })
 export class Link {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  @IsUUID('4')
+  id: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   @IsUrl()
