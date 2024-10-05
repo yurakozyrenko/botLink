@@ -1,15 +1,15 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import delay from '../utils/delay';
 
 import { BotService } from '../bot/bot.service';
+import { CreateLinkDto } from '../links/dto/createLink.dto';
+import { LinksService } from '../links/links.service';
 import { User } from '../users/entity/users.entity';
 import { UserActions, UserState, messages } from '../users/users.constants';
 import { UsersService } from '../users/users.service';
 import { TUsersActions } from '../users/users.types';
-import { LinksService } from 'src/links/links.service';
-import { CreateLinkDto } from 'src/links/dto/createLink.dto';
+import delay from '../utils/delay';
 
 @Injectable()
 export class BotHandlersService {
@@ -23,7 +23,7 @@ export class BotHandlersService {
     private readonly usersService: UsersService,
     private readonly linksService: LinksService,
     private readonly httpService: HttpService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   async onModuleInit() {
@@ -54,8 +54,6 @@ export class BotHandlersService {
     }
 
     const actionHandler = this.userActions[text as UserActions];
-
-    console.log('actionHandler: ', actionHandler);
 
     if (!actionHandler) {
       return this.handleDefault(text, user.chatId);
@@ -89,9 +87,7 @@ export class BotHandlersService {
     const userLinks = await this.linksService.getLinksByUserId(id);
 
     if (userLinks.length > 0) {
-      const message = userLinks
-        .map((link) => `код: ${link.id}, ссылка: ${link.userUrl}`)
-        .join('\n');
+      const message = userLinks.map((link) => `код: ${link.id}, ссылка: ${link.userUrl}`).join('\n');
 
       await this.botService.sendMessage(chatId, `${messages.LIST}\n${message}`);
     } else {
@@ -109,7 +105,7 @@ export class BotHandlersService {
     });
   }
 
-  async handleDelete(text: string, { id, chatId }: User): Promise<void> {
+  async handleDelete(text: string, { chatId }: User): Promise<void> {
     this.logger.log('run handleDelete');
 
     await this.botService.sendMessage(chatId, messages.DELETE);
@@ -126,10 +122,7 @@ export class BotHandlersService {
     this.logger.log('Default successfully ended');
   }
 
-  async waitingForApproveActionSave(
-    text: string,
-    { id, chatId }: User
-  ): Promise<void> {
+  async waitingForApproveActionSave(text: string, { id, chatId }: User): Promise<void> {
     this.logger.log('run waitingForApproveActionSave');
 
     const createLinkDto: CreateLinkDto = { userUrl: text, userId: id };
@@ -147,10 +140,7 @@ export class BotHandlersService {
     this.logger.log('waitingForApproveActionSave successfully ended');
   }
 
-  async waitingForApproveActionGet(
-    text: string,
-    { id, chatId }: User
-  ): Promise<void> {
+  async waitingForApproveActionGet(text: string, { chatId }: User): Promise<void> {
     this.logger.log('run waitingForApproveActionGet');
 
     try {
@@ -165,10 +155,7 @@ export class BotHandlersService {
     this.logger.log('waitingForApproveActionGet successfully ended');
   }
 
-  async waitingForApproveActionDelete(
-    text: string,
-    { id, chatId }: User
-  ): Promise<void> {
+  async waitingForApproveActionDelete(text: string, { chatId }: User): Promise<void> {
     this.logger.log('run waitingForApproveActionDelete');
 
     try {

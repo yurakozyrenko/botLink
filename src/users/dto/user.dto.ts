@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsString, Length } from 'class-validator';
+import { IsEnum, IsInt, Length } from 'class-validator';
 
 import { User } from '../entity/users.entity';
 import { UserState } from '../users.constants';

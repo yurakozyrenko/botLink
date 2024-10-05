@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BotService } from 'src/bot/bot.service';
-import { LinksRepository } from './links.repository';
+
 import { CreateLinkDto } from './dto/createLink.dto';
 import { Link } from './entity/links.entity';
-import { User } from 'src/users/entity/users.entity';
+import { LinksRepository } from './links.repository';
+import { BotService } from '../bot/bot.service';
+import { User } from '../users/entity/users.entity';
 
 @Injectable()
 export class LinksService {
@@ -14,7 +15,7 @@ export class LinksService {
   constructor(
     private readonly linksRepository: LinksRepository,
     private readonly bot: BotService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async createUserLink(createLinkDto: CreateLinkDto): Promise<void> {
@@ -32,10 +33,7 @@ export class LinksService {
 
     if (!LinkById) {
       this.logger.error(`link with linkId: ${id} not exist`);
-      throw new HttpException(
-        `keyword with keywordId: ${id} not exist`,
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException(`keyword with keywordId: ${id} not exist`, HttpStatus.BAD_REQUEST);
     }
 
     const { affected } = await this.linksRepository.deleteLinkById(id);
@@ -48,9 +46,7 @@ export class LinksService {
 
     const [links, count] = await this.linksRepository.getLinksByUserId(id);
 
-    this.logger.debug(
-      `${count} links successfully get by UserSessionId: ${id}`
-    );
+    this.logger.debug(`${count} links successfully get by UserSessionId: ${id}`);
 
     return links;
   }

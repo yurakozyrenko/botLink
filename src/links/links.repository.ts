@@ -2,31 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, InsertResult, Repository } from 'typeorm';
 
-import { Link } from './entity/links.entity';
 import { CreateLinkDto } from './dto/createLink.dto';
+import { Link } from './entity/links.entity';
 
 @Injectable()
 export class LinksRepository {
   constructor(
     @InjectRepository(Link)
-    private readonly linksRepository: Repository<Link>
+    private readonly linksRepository: Repository<Link>,
   ) {}
 
   async createUserLink(createLinkDto: CreateLinkDto): Promise<InsertResult> {
-    return await this.linksRepository
-      .createQueryBuilder('links')
-      .insert()
-      .into(Link)
-      .values(createLinkDto)
-      .execute();
+    return await this.linksRepository.createQueryBuilder('links').insert().into(Link).values(createLinkDto).execute();
   }
 
   async deleteLinkById(id: number): Promise<DeleteResult> {
-    return await this.linksRepository
-      .createQueryBuilder('links')
-      .delete()
-      .where('id = :id', { id })
-      .execute();
+    return await this.linksRepository.createQueryBuilder('links').delete().where('id = :id', { id }).execute();
   }
 
   async getLinkById(id: number): Promise<Link> {

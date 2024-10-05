@@ -1,7 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+import { Link } from '../../links/entity/links.entity';
 import { bigintTransformer } from '../../utils/bigintTransformer';
 import { UserState } from '../users.constants';
-import { Link } from 'src/links/entity/links.entity';
 
 @Entity({ name: 'users' })
 export class User {

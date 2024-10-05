@@ -1,10 +1,10 @@
-import { forwardRef, Module } from '@nestjs/common';
-
-import { LinksService } from './links.service';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { Link } from './entity/links.entity';
-import { BotModule } from 'src/bot/bot.module';
 import { LinksRepository } from './links.repository';
+import { LinksService } from './links.service';
+import { BotModule } from '../bot/bot.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Link]), forwardRef(() => BotModule)],

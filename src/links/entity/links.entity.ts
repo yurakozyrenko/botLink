@@ -1,6 +1,7 @@
 import { IsUrl } from 'class-validator';
-import { User } from 'src/users/entity/users.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { User } from '../../users/entity/users.entity';
 
 @Entity({ name: 'links' })
 export class Link {

@@ -6,9 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BotModule } from './bot/bot.module';
 import config from './config/configuration';
 import { HealthModule } from './health/health.module';
+import { LinksModule } from './links/links.module';
 import { UpdatesModule } from './updates/updates.module';
 import { UsersModule } from './users/users.module';
-import { LinksModule } from './links/links.module';
 
 @Module({
   imports: [
@@ -18,8 +18,7 @@ import { LinksModule } from './links/links.module';
     }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      useFactory: async (configService: ConfigService) =>
-        configService.getOrThrow('POSTGRES_DB_SETTINGS'),
+      useFactory: async (configService: ConfigService) => configService.getOrThrow('POSTGRES_DB_SETTINGS'),
       inject: [ConfigService],
     }),
     BotModule,

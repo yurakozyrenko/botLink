@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { User } from './entity/users.entity';
 import { UsersRepository } from './users.repository';
-import { BotService } from 'src/bot/bot.service';
-import { ConfigService } from '@nestjs/config';
+import { BotService } from '../bot/bot.service';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +15,7 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly bot: BotService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async findOneByChatId(chatId: User['chatId']): Promise<User> {
@@ -40,10 +40,7 @@ export class UsersService {
 
     if (user) {
       this.logger.error(`user with chatId ${chatId} already exists`);
-      throw new HttpException(
-        `user with chatId: ${chatId} already exist`,
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException(`user with chatId: ${chatId} already exist`, HttpStatus.BAD_REQUEST);
     }
 
     const { raw } = await this.usersRepository.createUser(createUserDto);
@@ -62,19 +59,14 @@ export class UsersService {
 
     if (!user) {
       this.logger.error(`user with chatId: ${chatId} not exist`);
-      throw new HttpException(
-        `user with chatId: ${chatId} not exist`,
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException(`user with chatId: ${chatId} not exist`, HttpStatus.BAD_REQUEST);
     }
 
     const { affected } = await this.usersRepository.updateUser(chatId, {
       userState,
     });
 
-    this.logger.debug(
-      `${affected} user successfully updated by chatId: ${chatId}`
-    );
+    this.logger.debug(`${affected} user successfully updated by chatId: ${chatId}`);
   }
 
   async getAllUsers(): Promise<User[]> {

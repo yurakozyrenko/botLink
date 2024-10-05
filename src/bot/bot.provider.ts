@@ -1,10 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  Injectable,
-  Logger,
-  LoggerService,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, LoggerService, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { firstValueFrom } from 'rxjs';
@@ -21,7 +16,7 @@ export class BotProvider implements OnModuleInit {
 
   constructor(
     private configService: ConfigService,
-    private readonly httpClient: HttpService
+    private readonly httpClient: HttpService,
   ) {
     this.botToken = this.configService.get('TELEGRAM_BOT_TOKEN');
     this.bot = new TelegramBot(this.botToken, { polling: false });
@@ -38,11 +33,7 @@ export class BotProvider implements OnModuleInit {
     await this.bot.sendMessage(chatId, message);
   }
 
-  async sendMessageAndKeyboard(
-    chatId: number,
-    text: string,
-    keyboard: TelegramBot.KeyboardButton[][]
-  ) {
+  async sendMessageAndKeyboard(chatId: number, text: string, keyboard: TelegramBot.KeyboardButton[][]) {
     try {
       await this.bot.sendMessage(chatId, text, {
         reply_markup: {
@@ -53,9 +44,7 @@ export class BotProvider implements OnModuleInit {
         parse_mode: ParseModes.HTML,
       });
     } catch (error) {
-      this.logger.error(
-        `Send message with keyboard to id - ${chatId} : ${error}`
-      );
+      this.logger.error(`Send message with keyboard to id - ${chatId} : ${error}`);
     }
   }
 
@@ -68,9 +57,7 @@ export class BotProvider implements OnModuleInit {
     const isWebHookValid = await this.validateWebHook(webHookInfo, webHookUrl);
 
     if (!isWebHookValid) {
-      throw new Error(
-        `Webhook url is not set correctly for bot: ${JSON.stringify(webHookInfo)}`
-      );
+      throw new Error(`Webhook url is not set correctly for bot: ${JSON.stringify(webHookInfo)}`);
     }
 
     this.logger.log('Webhook url is set correctly for bot');
@@ -85,10 +72,7 @@ export class BotProvider implements OnModuleInit {
     };
 
     const { data: setResult } = await firstValueFrom(
-      this.httpClient.post(
-        `${this.telegramBotApiUrl}${this.botToken}/setWebhook`,
-        setWebhookParams
-      )
+      this.httpClient.post(`${this.telegramBotApiUrl}${this.botToken}/setWebhook`, setWebhookParams),
     );
     this.logger.debug(setResult);
 
@@ -98,24 +82,16 @@ export class BotProvider implements OnModuleInit {
   private async getWebHoolInfo() {
     const {
       data: { result: webHookInfo },
-    } = await firstValueFrom(
-      this.httpClient.get(
-        `${this.telegramBotApiUrl}${this.botToken}/getWebhookInfo`
-      )
-    );
+    } = await firstValueFrom(this.httpClient.get(`${this.telegramBotApiUrl}${this.botToken}/getWebhookInfo`));
     this.logger.debug(webHookInfo);
 
     return webHookInfo;
   }
 
-  private validateWebHook(
-    webHookInfo: TelegramBot.SetWebHookOptions,
-    webHookUrl: string
-  ): boolean {
+  private validateWebHook(webHookInfo: TelegramBot.SetWebHookOptions, webHookUrl: string): boolean {
     return Boolean(
       webHookInfo.url === webHookUrl ||
-        webHookInfo.allowed_updates.sort().toString() ===
-          this.allowedBotUpdates.sort().toString()
+        webHookInfo.allowed_updates.sort().toString() === this.allowedBotUpdates.sort().toString(),
     );
   }
 

@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { forwardRef, Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 
 import { BotProvider } from './bot.provider';
 import { BotService } from './bot.service';

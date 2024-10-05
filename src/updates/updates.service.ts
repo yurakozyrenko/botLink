@@ -11,7 +11,7 @@ export class UpdatesService {
 
   constructor(
     private readonly userService: UsersService,
-    private readonly botHandlersService: BotHandlersService
+    private readonly botHandlersService: BotHandlersService,
   ) {}
 
   async handleUpdate({ message }: Update) {
@@ -21,9 +21,7 @@ export class UpdatesService {
 
     const existingUser = await this.userService.findOneByChatId(chatId);
 
-    const user = existingUser
-      ? existingUser
-      : await this.userService.createUser({ chatId });
+    const user = existingUser ? existingUser : await this.userService.createUser({ chatId });
 
     if (user && chatType === 'private') {
       this.logger.log(`Handling private message from chatId: ${chatId}`);
