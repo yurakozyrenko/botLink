@@ -55,28 +55,6 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUserCity(chatId: number, { city }: UpdateUserDto) {
-    this.logger.log(`Trying to get user by chatId: ${chatId} `);
-
-    const user = await this.usersRepository.findOneByChatId(chatId);
-
-    if (!user) {
-      this.logger.error(`user with chatId: ${chatId} not exist`);
-      throw new HttpException(
-        `user with chatId: ${chatId} not exist`,
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
-    const { affected } = await this.usersRepository.updateUser(chatId, {
-      city,
-    });
-
-    this.logger.debug(
-      `${affected} user successfully updated by chatId: ${chatId}`
-    );
-  }
-
   async updateUser(chatId: number, { userState }: UpdateUserDto) {
     this.logger.log(`Trying to get user by chatId: ${chatId} `);
 

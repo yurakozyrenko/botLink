@@ -8,10 +8,6 @@ export class UserDto {
   @Length(5, 11)
   chatId: User['chatId'];
 
-  @IsString()
-  @Length(1, 20)
-  city: User['city'];
-
   @IsEnum(UserState)
   userState: User['userState'];
 }

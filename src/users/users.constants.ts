@@ -8,7 +8,9 @@ export enum UserActions {
 
 export enum UserState {
   START = 'start',
-  WAITING_FOR_APPROVE = 'waitingForApprove',
+  WAITING_FOR_APPROVE_SAVE = 'waitingForApproveSave',
+  WAITING_FOR_APPROVE_DELETE = 'waitingForApproveDelete',
+  WAITING_FOR_APPROVE_GET = 'waitingForApproveGet',
   CONFIRM = 'confirm',
 }
 
@@ -17,14 +19,17 @@ export const messages = {
   MENU_SELECTION: 'Пожалуйста, выберите из меню: ',
   MENU_CANSEL: 'Отписаться от уведомлений',
   SAVE: 'Введите ссылку которую хотите сохранить',
-  LIST: 'Список сохраненных ссылок',
-  GET: 'Получить ссылку',
-  DELETE: 'Удалить ссылку',
+  SAVE_ERR: 'Ошибка при сохранении ссылки',
+  SAVE_SUCCESSFULLY: 'Ссылка успешно сохранена!',
+  LIST: 'Список сохраненных ссылок:',
+  LISTEMPTY: 'У вас пока нет сохраненных ссылок.',
+  GET: 'Введите код для получения ссылки',
+  GET_ERR: 'Ошибка при получении ссылки',
+  DELETE: 'Введите код ссылки которую хотите удалить',
+  DELETE_ERR: 'Ошибка при удалении ссылки',
   NOT_A_LINK: 'Ввели невалидный url! Попробуйте еще раз.',
 
-  CITY_SELECTION: 'Пожалуйста, введите название вашего города: ',
-  TIME_SELECTION: 'Выберите время для ежедневной рассылки: ',
   ALREADY_SAVED: 'Ваши данные приняты.',
-  DELETED_SUCCESSFULLY: 'Удаление прошло успешно',
+  DELETE_SUCCESSFULLY: 'Ссылка успешно удалена',
   DEFAULT: 'Привет, я умею хранить ссылки.',
 };

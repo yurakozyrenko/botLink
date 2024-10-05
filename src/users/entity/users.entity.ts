@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { bigintTransformer } from '../../utils/bigintTransformer';
 import { UserState } from '../users.constants';
+import { Link } from 'src/links/entity/links.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -15,9 +15,9 @@ export class User {
   })
   chatId: number;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  city: string;
-
   @Column({ type: 'enum', enum: UserState, default: null })
   userState: UserState;
+
+  @OneToMany(() => Link, (link) => link.user)
+  links: Link[];
 }
