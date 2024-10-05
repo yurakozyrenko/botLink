@@ -6,6 +6,5 @@ export class LinkDto {
   @IsUrl()
   userUrl: Link['userUrl'];
 
-  // Поле для связи с пользователем
-  userId: number; // Здесь передаем только ID пользователя
+  userId: number;
 }

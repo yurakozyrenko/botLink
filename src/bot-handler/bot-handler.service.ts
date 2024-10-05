@@ -121,6 +121,7 @@ export class BotHandlersService {
     const isLink = this.isValidLink(text);
 
     if (!isLink) {
+      await this.usersService.updateUser(chatId, { userState: UserState.START });
       return await this.botService.sendMessage(chatId, messages.NOT_A_LINK);
     }
 
