@@ -33,7 +33,7 @@ export class BotHandlersService {
   async handleTextMessage(text: string, user: User): Promise<void> {
     this.logger.log('run handleTextMessage');
 
-    const { userState } = user;
+    const { userState, chatId } = user;
 
     if (userState === UserState.WAITING_FOR_APPROVE_SAVE) {
       return this.waitingForApproveActionSave(text, user);
@@ -50,7 +50,7 @@ export class BotHandlersService {
     const actionHandler = this.userActions[text as UserActions];
 
     if (!actionHandler) {
-      return this.handleDefault(user.chatId);
+      return this.handleDefault(chatId);
     }
 
     return actionHandler(text, user);
@@ -127,8 +127,8 @@ export class BotHandlersService {
     const createLinkDto: CreateLinkDto = { userUrl: text, userId: id };
 
     try {
-      await this.linksService.createUserLink(createLinkDto);
-      await this.botService.sendMessage(chatId, messages.SAVE_SUCCESSFULLY);
+      const code: string = await this.linksService.createUserLink(createLinkDto);
+      await this.botService.sendMessage(chatId, `${messages.SAVE_SUCCESSFULLY}\nКод: ${code}`);
     } catch (error) {
       this.logger.error(messages.SAVE_ERR, error);
       await this.botService.sendMessage(chatId, messages.SAVE_ERR);
@@ -142,8 +142,8 @@ export class BotHandlersService {
     this.logger.log('run waitingForApproveActionGet');
 
     try {
-      const link = await this.linksService.getLinkById(text);
-      await this.botService.sendMessage(chatId, link.userUrl);
+      const { userUrl } = await this.linksService.getLinkById(text);
+      await this.botService.sendMessage(chatId, userUrl);
     } catch (error) {
       this.logger.error(messages.GET_ERR, error);
       await this.botService.sendMessage(chatId, messages.GET_ERR);

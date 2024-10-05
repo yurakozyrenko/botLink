@@ -1,10 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { CreateLinkDto } from './dto/createLink.dto';
 import { Link } from './entity/links.entity';
 import { LinksRepository } from './links.repository';
-import { BotService } from '../bot/bot.service';
 import { User } from '../users/entity/users.entity';
 
 @Injectable()
@@ -12,18 +10,16 @@ export class LinksService {
   private readonly logger = new Logger(LinksService.name);
   private readonly chatId: number;
 
-  constructor(
-    private readonly linksRepository: LinksRepository,
-    private readonly bot: BotService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly linksRepository: LinksRepository) {}
 
-  async createUserLink(createLinkDto: CreateLinkDto): Promise<void> {
+  async createUserLink(createLinkDto: CreateLinkDto): Promise<string> {
     this.logger.log(`Trying to save link`);
 
-    await this.linksRepository.createUserLink(createLinkDto);
+    const { raw } = await this.linksRepository.createUserLink(createLinkDto);
 
-    this.logger.debug(`link successfully created`);
+    this.logger.debug(`link successfully created with id: ${raw[0].id}`);
+
+    return raw[0].id;
   }
 
   async deleteLinkById(id: Link['id']) {
