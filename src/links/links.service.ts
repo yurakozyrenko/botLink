@@ -11,10 +11,10 @@ export class LinksService {
 
   constructor(private readonly linksRepository: LinksRepository) {}
 
-  async createUserLink(createLinkDto: CreateLinkDto): Promise<string> {
+  async createUserLink(userUrl: string, userId: number): Promise<string> {
     this.logger.log(`Trying to save link`);
 
-    const { userUrl, userId } = createLinkDto;
+    const createLinkDto: CreateLinkDto = { userUrl, userId };
 
     const link = await this.linksRepository.findOneByUrlAndUserId(userUrl, userId);
 
@@ -30,14 +30,14 @@ export class LinksService {
     return raw[0].id;
   }
 
-  async deleteLinkById(id: Link['id']) {
-    this.logger.log(`Trying to delete link by id: ${id}`);
+  async deleteLinkById(id: Link['id'], userId: number) {
+    this.logger.log(`Trying to delete link ${id}`);
 
-    const LinkById = await this.linksRepository.getLinkById(id);
+    const LinkByUserIdAndId = await this.linksRepository.getLinkByUserIdAndId(id, userId);
 
-    if (!LinkById) {
-      this.logger.error(`link with linkId: ${id} not exist`);
-      throw new HttpException(`keyword with keywordId: ${id} not exist`, HttpStatus.BAD_REQUEST);
+    if (!LinkByUserIdAndId) {
+      this.logger.error(`link with linkId not exist`);
+      throw new HttpException(`link with userId not exist`, HttpStatus.BAD_REQUEST);
     }
 
     const { affected } = await this.linksRepository.deleteLinkById(id);
@@ -45,14 +45,16 @@ export class LinksService {
     this.logger.debug(`${affected} Link successfully deleted by id: ${id}`);
   }
 
-  async getLinksByUserId(id: User['id']): Promise<Link[]> {
+  async getLinksByUserId(id: User['id'], page: number, limit: number): Promise<[Link[], number]> {
     this.logger.log(`Trying to get links by UserId: ${id}`);
 
-    const [links, count] = await this.linksRepository.getLinksByUserId(id);
+    const offset = (page - 1) * limit;
+
+    const [links, count] = await this.linksRepository.getLinksByUserId(id, offset, limit);
 
     this.logger.debug(`${count} links successfully get by UserSessionId: ${id}`);
 
-    return links;
+    return [links, count];
   }
 
   async getLinkById(id: Link['id']): Promise<Link> {
@@ -63,5 +65,13 @@ export class LinksService {
     this.logger.debug(`${linkById ? 'link ' : 'No link '}get by Id: ${id}`);
 
     return linkById;
+  }
+
+  async findOneByUserIdAndUserUrl(userUrl: string, userId: number): Promise<Link> {
+    this.logger.log(`Trying to get link by userId: ${userId}`);
+
+    const linkByUserIdAndUrl = await this.linksRepository.findOneByUrlAndUserId(userUrl, userId);
+
+    return linkByUserIdAndUrl;
   }
 }

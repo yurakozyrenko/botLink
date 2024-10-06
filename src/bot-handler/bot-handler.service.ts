@@ -1,7 +1,6 @@
 import { Injectable, Logger, LoggerService } from '@nestjs/common';
 
 import { BotService } from '../bot/bot.service';
-import { CreateLinkDto } from '../links/dto/createLink.dto';
 import { LinksService } from '../links/links.service';
 import { User } from '../users/entity/users.entity';
 import { UserActions, UserState, messages } from '../users/users.constants';
@@ -75,15 +74,22 @@ export class BotHandlersService {
     });
   }
 
-  async handleList(text: string, { id, chatId }: User): Promise<void> {
+  async handleList(text: string, { id, chatId }: User, page: number = 1): Promise<void> {
     this.logger.log('run handleList');
 
-    const userLinks = await this.linksService.getLinksByUserId(id);
+    const limit: number = 10;
+
+    const [userLinks, totalCount] = await this.linksService.getLinksByUserId(id, page, limit);
 
     if (userLinks.length > 0) {
       const message = userLinks.map((link, i) => `${++i}. код: ${link.id}, ссылка: ${link.userUrl}`).join('\n');
 
       await this.botService.sendMessage(chatId, `${messages.LIST}\n${message}`);
+
+      if (totalCount > limit) {
+        const keyboard = [[{ text: 'Вперед ➡️', callback_data: `next_${page + 1}` }]];
+        await this.botService.sendMessageAndKeyboard(chatId, 'Навигация:', keyboard);
+      }
     } else {
       await this.botService.sendMessage(chatId, messages.LIST_EMPTY);
     }
@@ -125,10 +131,21 @@ export class BotHandlersService {
       return await this.botService.sendMessage(chatId, messages.NOT_A_LINK);
     }
 
-    const createLinkDto: CreateLinkDto = { userUrl: text, userId: id };
+    const link = await this.linksService.findOneByUserIdAndUserUrl(text, id);
+
+    if (link) {
+      await this.usersService.updateUser(chatId, { userState: UserState.START });
+      return await this.botService.sendMessage(chatId, messages.SAVE_EXIST);
+    }
 
     try {
-      const code: string = await this.linksService.createUserLink(createLinkDto);
+      const code: string = await this.linksService.createUserLink(text, id);
+
+      if (!code) {
+        await this.usersService.updateUser(chatId, { userState: UserState.START });
+        return await this.botService.sendMessage(chatId, messages.SAVE_EXIST);
+      }
+
       await this.botService.sendMessage(chatId, `${messages.SAVE_SUCCESSFULLY}\nКод: ${code}`);
     } catch (error) {
       this.logger.error(messages.SAVE_ERR, error);
@@ -160,11 +177,11 @@ export class BotHandlersService {
     this.logger.log('waitingForApproveActionGet successfully ended');
   }
 
-  async waitingForApproveActionDelete(text: string, { chatId }: User): Promise<void> {
+  async waitingForApproveActionDelete(text: string, { id: userId, chatId }: User): Promise<void> {
     this.logger.log('run waitingForApproveActionDelete');
 
     try {
-      await this.linksService.deleteLinkById(text);
+      await this.linksService.deleteLinkById(text, userId);
 
       await this.botService.sendMessage(chatId, messages.DELETE_SUCCESSFULLY);
     } catch (error) {

@@ -28,9 +28,20 @@ export class LinksRepository {
       .getOne();
   }
 
-  async getLinksByUserId(id: number): Promise<[Link[], number]> {
+  async getLinkByUserIdAndId(id: string, userId: number): Promise<Link> {
     return await this.linksRepository
       .createQueryBuilder('links')
+      .where('links.id = :id', { id })
+      .andWhere('links.userId = :userId', { userId })
+      .getOne();
+  }
+
+  async getLinksByUserId(id: number, offset: number, limit: number): Promise<[Link[], number]> {
+    return await this.linksRepository
+      .createQueryBuilder('links')
+      .limit(limit)
+      .offset(offset)
+      .orderBy('links.created_at', 'DESC')
       .where('links.user_id = :id', { id })
       .getManyAndCount();
   }

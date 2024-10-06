@@ -1,5 +1,5 @@
 import { IsUUID, IsUrl } from 'class-validator';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { User } from '../../users/entity/users.entity';
 
@@ -18,4 +18,7 @@ export class Link {
 
   @Column()
   userId: number;
+
+  @CreateDateColumn({ type: 'timestamp without time zone' })
+  createdAt: Date;
 }
