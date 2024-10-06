@@ -34,4 +34,12 @@ export class LinksRepository {
       .where('links.user_id = :id', { id })
       .getManyAndCount();
   }
+
+  async findOneByUrlAndUserId(userUrl: string, userId: number): Promise<Link> {
+    return await this.linksRepository
+      .createQueryBuilder('links')
+      .where('links.userUrl = :userUrl', { userUrl })
+      .andWhere('links.userId = :userId', { userId })
+      .getOne();
+  }
 }

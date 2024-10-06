@@ -85,7 +85,7 @@ export class BotHandlersService {
 
       await this.botService.sendMessage(chatId, `${messages.LIST}\n${message}`);
     } else {
-      await this.botService.sendMessage(chatId, messages.LISTEMPTY);
+      await this.botService.sendMessage(chatId, messages.LIST_EMPTY);
     }
   }
 
@@ -143,8 +143,14 @@ export class BotHandlersService {
     this.logger.log('run waitingForApproveActionGet');
 
     try {
-      const { userUrl } = await this.linksService.getLinkById(text);
-      await this.botService.sendMessage(chatId, userUrl);
+      const link = await this.linksService.getLinkById(text);
+
+      if (!link) {
+        await this.usersService.updateUser(chatId, { userState: UserState.START });
+        return await this.botService.sendMessage(chatId, messages.GET_EMPTY);
+      }
+
+      await this.botService.sendMessage(chatId, link.userUrl);
     } catch (error) {
       this.logger.error(messages.GET_ERR, error);
       await this.botService.sendMessage(chatId, messages.GET_ERR);

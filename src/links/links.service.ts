@@ -8,12 +8,20 @@ import { User } from '../users/entity/users.entity';
 @Injectable()
 export class LinksService {
   private readonly logger = new Logger(LinksService.name);
-  private readonly chatId: number;
 
   constructor(private readonly linksRepository: LinksRepository) {}
 
   async createUserLink(createLinkDto: CreateLinkDto): Promise<string> {
     this.logger.log(`Trying to save link`);
+
+    const { userUrl, userId } = createLinkDto;
+
+    const link = await this.linksRepository.findOneByUrlAndUserId(userUrl, userId);
+
+    if (link) {
+      this.logger.error(`link with userUrl: ${userUrl} already exist`);
+      throw new HttpException(`link with userUrl: ${userUrl} already exist`, HttpStatus.BAD_REQUEST);
+    }
 
     const { raw } = await this.linksRepository.createUserLink(createLinkDto);
 

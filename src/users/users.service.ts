@@ -1,22 +1,15 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { User } from './entity/users.entity';
 import { UsersRepository } from './users.repository';
-import { BotService } from '../bot/bot.service';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-  private readonly chatId: number;
 
-  constructor(
-    private readonly usersRepository: UsersRepository,
-    private readonly bot: BotService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async findOneByChatId(chatId: User['chatId']): Promise<User> {
     this.logger.log(`Trying to user info by chatId: ${chatId}`);
